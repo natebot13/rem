@@ -1,5 +1,6 @@
 import re
 import discord
+import upsidedown
 
 with open('.token') as f:
     TOKEN = f.read().strip()
@@ -34,6 +35,26 @@ client = RemBotClient()
 @client.register('r/')
 async def reddit(client, command, message):
     await message.channel.send(f'https://reddit.com/{message.content}')
+
+@client.register('ping')
+async def pong(client, command, message):
+    await message.channel.send('pong')
+
+
+@client.register(['flip', 'ban'])
+async def flip(client, command, message):
+    flipped = message.content[len(command):]
+    for member in message.mentions:
+        if '!' in member.mention:
+            mention_with_bang = member.mention
+            mention = member.mention.replace('!', '')
+        else:
+            mention_with_bang = member.mention.replace('@', '@!')
+            mention = member.mention
+        flipped = flipped.replace(mention, member.display_name)
+        flipped = flipped.replace(mention_with_bang, member.display_name)
+    flipped = upsidedown.transform(flipped)
+    await message.channel.send(f'(╯°□°）╯︵ ┻━┻ {flipped}')
 
 @client.register(['re:nick', 're:name'])
 async def renick(client, command, message):
